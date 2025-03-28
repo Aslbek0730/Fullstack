@@ -64,3 +64,62 @@ class Book(models.Model):
 
     def __str__(self):
         return f"{self.title} by {self.author}"
+
+class Test(models.Model):
+    title = models.CharField(max_length=200)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='tests')
+    description = models.TextField()
+    duration = models.IntegerField(help_text='Duration in minutes')
+    passing_score = models.IntegerField(help_text='Minimum score required to pass')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.course.title}"
+
+class Question(models.Model):
+    QUESTION_TYPES = [
+        ('multiple_choice', 'Multiple Choice'),
+        ('true_false', 'True/False'),
+        ('short_answer', 'Short Answer'),
+    ]
+
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='questions')
+    question_text = models.TextField()
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
+    points = models.IntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.question_text[:50]}..."
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
+    choice_text = models.CharField(max_length=200)
+    is_correct = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.choice_text
+
+class UserTestAttempt(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='test_attempts')
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='attempts')
+    score = models.IntegerField(null=True, blank=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    passed = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-started_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.test.title}"

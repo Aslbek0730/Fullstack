@@ -43,7 +43,6 @@ export const courseApi = {
     update: (id, data) => api.put(`/courses/${id}/`, data),
     delete: (id) => api.delete(`/courses/${id}/`),
     getBooks: (id) => api.get(`/courses/${id}/books/`),
-    getRecommendations: () => api.get('/courses/recommendations/'),
 };
 
 export const bookApi = {
@@ -52,14 +51,6 @@ export const bookApi = {
     create: (data) => api.post('/books/', data),
     update: (id, data) => api.put(`/books/${id}/`, data),
     delete: (id) => api.delete(`/books/${id}/`),
-};
-
-export const learningHistoryApi = {
-    getAll: () => api.get('/learning-history/'),
-    getById: (id) => api.get(`/learning-history/${id}/`),
-    create: (data) => api.post('/learning-history/', data),
-    updateProgress: (id, progress) => api.post(`/learning-history/${id}/update_progress/`, { progress }),
-    rateCourse: (id, rating) => api.post(`/learning-history/${id}/rate_course/`, { rating }),
 };
 
 export default api; 

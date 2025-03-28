@@ -1,46 +1,72 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import AdminLayout from './components/AdminLayout';
-import CourseList from './components/CourseList';
-import BookList from './components/BookList';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { AuthProvider } from './contexts/AuthContext';
+import { AuthGuard } from './components/AuthGuard';
 import Login from './components/Login';
+import Register from './components/Register';
+import AdminLayout from './components/admin/AdminLayout';
+import CourseList from './components/admin/CourseList';
+import BookList from './components/BookList';
 
-const PrivateRoute = ({ children }) => {
-    const isAuthenticated = !!localStorage.getItem('access_token');
-    return isAuthenticated ? children : <Navigate to="/login" />;
-};
+const theme = createTheme({
+    palette: {
+        mode: 'light',
+        primary: {
+            main: '#1976d2',
+        },
+        secondary: {
+            main: '#dc004e',
+        },
+    },
+});
 
-const AdminRoute = ({ children }) => (
-    <PrivateRoute>
-        <AdminLayout>{children}</AdminLayout>
-    </PrivateRoute>
-);
-
-const App = () => {
+function App() {
     return (
-        <Router>
-            <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route
-                    path="/admin/courses"
-                    element={
-                        <AdminRoute>
-                            <CourseList />
-                        </AdminRoute>
-                    }
-                />
-                <Route
-                    path="/admin/books"
-                    element={
-                        <AdminRoute>
-                            <BookList />
-                        </AdminRoute>
-                    }
-                />
-                <Route path="/" element={<Navigate to="/admin/courses" />} />
-            </Routes>
-        </Router>
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <AuthProvider>
+                <Router>
+                    <Routes>
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route
+                            path="/admin"
+                            element={
+                                <AuthGuard>
+                                    <AdminLayout>
+                                        <Navigate to="/admin/courses" replace />
+                                    </AdminLayout>
+                                </AuthGuard>
+                            }
+                        />
+                        <Route
+                            path="/admin/courses"
+                            element={
+                                <AuthGuard>
+                                    <AdminLayout>
+                                        <CourseList />
+                                    </AdminLayout>
+                                </AuthGuard>
+                            }
+                        />
+                        <Route
+                            path="/admin/books"
+                            element={
+                                <AuthGuard>
+                                    <AdminLayout>
+                                        <BookList />
+                                    </AdminLayout>
+                                </AuthGuard>
+                            }
+                        />
+                        <Route path="/" element={<Navigate to="/admin" replace />} />
+                    </Routes>
+                </Router>
+            </AuthProvider>
+        </ThemeProvider>
     );
-};
+}
 
 export default App; 

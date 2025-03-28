@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Course, Book, UserLearningHistory, CourseTag
+from .models import Course, Book, UserLearningHistory, CourseTag, Test, Question, Choice, UserTestAttempt
 
 class CourseTagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,4 +49,36 @@ class UserLearningHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = UserLearningHistory
         fields = '__all__'
-        read_only_fields = ('user', 'created_at', 'last_accessed') 
+        read_only_fields = ('user', 'created_at', 'last_accessed')
+
+class ChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Choice
+        fields = ['id', 'choice_text', 'is_correct']
+        read_only_fields = ('created_at',)
+
+class QuestionSerializer(serializers.ModelSerializer):
+    choices = ChoiceSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Question
+        fields = ['id', 'question_text', 'question_type', 'points', 'choices']
+        read_only_fields = ('created_at', 'updated_at')
+
+class TestSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True, read_only=True)
+    course_title = serializers.CharField(source='course.title', read_only=True)
+
+    class Meta:
+        model = Test
+        fields = '__all__'
+        read_only_fields = ('created_at', 'updated_at')
+
+class UserTestAttemptSerializer(serializers.ModelSerializer):
+    test_title = serializers.CharField(source='test.title', read_only=True)
+    course_title = serializers.CharField(source='test.course.title', read_only=True)
+
+    class Meta:
+        model = UserTestAttempt
+        fields = '__all__'
+        read_only_fields = ('user', 'started_at', 'completed_at', 'passed') 

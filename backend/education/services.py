@@ -1,4 +1,4 @@
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, StdDev
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
